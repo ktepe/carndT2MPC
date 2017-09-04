@@ -104,36 +104,63 @@ int main() {
           * Both are in between [-1, 1].
           *
           */
-          double steer_value;
-          double throttle_value;
+          
 
 					// ket, get the waypoints in car coordinate system, vehice is at (0,0)
-					vector<double> x_waypoints;
-					vector<double> y_waypoints;
-					for (int i=0; i< ptsx.size(); i++){
+					//vector<double> x_waypoints;
+					//vector<double> y_waypoints;
 					
+					Eigen::VectorXd x_waypoints(ptsx.size());
+					Eigen::VectorXd y_waypoints(ptsx.size());
+					
+					
+					for (int i=0; i< ptsx.size(); i++){					
 						double delta_x=ptsx[i]-px;
-						double delta_y=ptsy[i]-py;
-						
+						double delta_y=ptsy[i]-py;						
 						//x and y trnasitins of position of the car in coordiate system
-						 					
-						double trans_x=delta_x*cos(-psi)-delta_y*sin(-psi);
-						double trans_y=delta_x*sin(-psi)+delta_y*cos(-psi);
-					
-						x_waypoints.push_back(trans_x);
-						y_waypoitns.push_back(trans_y);
+						x_waypoints(i)=delta_x*cos(-psi)-delta_y*sin(-psi);
+						y_waypoints(i)=delta_x*sin(-psi)+delta_y*cos(-psi);
 					}
 					
 #if ket_debug         
 					for (int i=0; i< ptsx.size(); i++) {
 						cout << ptsx[i] << endl;
-
 					}
 #endif
+					Eigen::VectorXd coeffs;
+					
+					coeffs=polyfit(x_waypoints, y_waypoints, 3);
+#if ket_debug
+					cout << coeffs << endl;
+#endif
+					double cte= polyeval(coeffs,0);
+					double epsi=-atan(coeffs[1]);
+					
+					//construt the state vector
+					Eigen::VectorXd state_vec(6);
+					
+					state_vec << 0, 0, 0, v, cte, epsi;
+
+#if ket_debug
+					cout<< "before solver " << state_vec.size() << endl;
+#endif
+					
+					//vector<double> actuation_vec=mpc.Solve(state_vec,coeffs);
+					auto actuation_vec=mpc.Solve(state_vec,coeffs);
+#if ket_debug
+					cout<< "actuation vector " << actuation_vec [0] << " " << actuation_vec[1] << endl;
+#endif
+
+					double steer_value=-actuation_vec[0];					
+          double throttle_value=actuation_vec[1]*0.5;
+          //Kp,Ki,Kd 0.08, 0.005, 0.5       	
+					//double steer_value=-0.08*cte-0.5*(cte-cte_t)-0.005*cte;
+					//steer_value=-0.008*cte;
+
           json msgJson;
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
           // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
-          msgJson["steering_angle"] = steer_value;
+          msgJson["steering_angle"] = steer_value/deg2rad(25);
           msgJson["throttle"] = throttle_value;
 
           //Display the MPC predicted trajectory 
@@ -142,6 +169,9 @@ int main() {
 
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Green line
+
+
+
 
           msgJson["mpc_x"] = mpc_x_vals;
           msgJson["mpc_y"] = mpc_y_vals;
@@ -152,6 +182,17 @@ int main() {
 
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Yellow line
+
+
+					for (int i=0; i< ptsx.size(); i++){					
+							//x and y trnasitins of position of the car in coordiate system
+						next_x_vals.push_back(x_waypoints(i));
+						
+						next_y_vals.push_back(y_waypoints(i));
+						}
+
+
+
 
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;
