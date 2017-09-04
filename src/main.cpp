@@ -153,7 +153,7 @@ int main() {
 #endif
 
 					double steer_value=-actuation_vec[0];					
-          double throttle_value=actuation_vec[1]*0.5;
+          double throttle_value=actuation_vec[1];
           //Kp,Ki,Kd 0.08, 0.005, 0.5       	
 					//double steer_value=-0.08*cte-0.5*(cte-cte_t)-0.005*cte;
 					//steer_value=-0.008*cte;
@@ -170,9 +170,6 @@ int main() {
 
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Green line
-
-
-
 
           msgJson["mpc_x"] = mpc_x_vals;
           msgJson["mpc_y"] = mpc_y_vals;
