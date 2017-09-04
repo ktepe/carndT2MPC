@@ -9,6 +9,8 @@
 #include "MPC.h"
 #include "json.hpp"
 
+#define ket_debug true
+
 // for convenience
 using json = nlohmann::json;
 
@@ -104,14 +106,30 @@ int main() {
           */
           double steer_value;
           double throttle_value;
-         
-          steer_value=-0.05 ;
-          throttle_value=0.1;
-         
+
+					// ket, get the waypoints in car coordinate system, vehice is at (0,0)
+					vector<double> x_waypoints;
+					vector<double> y_waypoints;
+					for (int i=0; i< ptsx.size(); i++){
+					
+						double delta_x=ptsx[i]-px;
+						double delta_y=ptsy[i]-py;
+						
+						//x and y trnasitins of position of the car in coordiate system
+						 					
+						double trans_x=delta_x*cos(-psi)-delta_y*sin(-psi);
+						double trans_y=delta_x*sin(-psi)+delta_y*cos(-psi);
+					
+						x_waypoints.push_back(trans_x);
+						y_waypoints.push_back(trans_y);
+					}
+					
+#if ket_debug         
 					for (int i=0; i< ptsx.size(); i++) {
 						cout << ptsx[i] << endl;
 
 					}
+#endif
           json msgJson;
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
           // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
