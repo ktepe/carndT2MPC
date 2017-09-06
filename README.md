@@ -18,7 +18,7 @@ v(t+1)=v(t)+a(t)d_t
 cte(t+1) = f(x(t))-y(t)+v(t)sin(ephi(t))d_t;
 ephi(t+1) = epsi(t)- epsi_{dest}(t)+v(t) delta(t)/Lf d_t ;
 ```
-where $Lf$ is turning radius constant, $d_t$ sampling time, $a(t)$ acceleration (throttle), and $$delta(t)$$ steering angle.  Variable ``a(t)`` and $$delta(t)$$ are actuations. 
+where ``Lf`` is turning radius constant, ``d_t`` sampling time, ``a(t)`` acceleration (throttle), and ``delta(t)`` steering angle.  Variable ``a(t)`` and ``delta(t)`` are actuations. 
  
 
 ## Timestep Length and Elapsed Duration (N & dt)
