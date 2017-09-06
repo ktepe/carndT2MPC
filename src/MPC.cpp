@@ -57,7 +57,7 @@ class FG_eval {
     //now cost function Similar to the lectures
     for (int t = 0; t < N; t++) {
       fg[0] += 1500*CppAD::pow(vars[cte_start + t], 2);
-      fg[0] += 300*CppAD::pow(vars[epsi_start + t], 2);
+      fg[0] += 350*CppAD::pow(vars[epsi_start + t], 2);
       fg[0] += 2*CppAD::pow(vars[v_start + t] - ref_v, 2);
     }
     // minimize acutations
