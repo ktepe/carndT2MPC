@@ -69,9 +69,11 @@ controls.push_back(solution.x[delta_start+1]);
 controls.push_back(solution.x[a_start+1]);
 ```
 
-##Conclusions:
+## Conclusions:
 
 * The controller works upto speeds 30 mph without any problem. With some more time and cost weight adjustments, the controller can handle higher speeds.
+
+* Model predictive control lecture and codes provided there were very useful. I also heavily used Forum discussions to implement and finetune the controller.
 
 
 ---
