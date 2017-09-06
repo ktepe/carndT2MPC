@@ -157,13 +157,13 @@ int main() {
 #endif
 					
 					//vector<double> actuation_vec=mpc.Solve(state_vec,coeffs);
-					auto actuation_vec=mpc.Solve(state_vec,coeffs);
+					auto mpc_vec=mpc.Solve(state_vec,coeffs);
 #if ket_debug
-					cout<< "actuation vector " << actuation_vec [0] << " " << actuation_vec[1] << endl;
+					cout<< "actuation vector " << mpc_vec[0] << " " << mpc_vec[1] << " " << mpc_vec.size()<<endl;
 #endif
 
-					double steer_value=actuation_vec[0];					
-          double throttle_value=actuation_vec[1];
+					double steer_value=mpc_vec[0];					
+          double throttle_value=mpc_vec[1];
           //Kp,Ki,Kd 0.08, 0.005, 0.5       	
 					//double steer_value=-0.08*cte-0.5*(cte-cte_t)-0.005*cte;
 					//steer_value=-0.008*cte;
@@ -172,15 +172,31 @@ int main() {
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
           // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
           msgJson["steering_angle"] = -1.0*steer_value/deg2rad(25);
-          msgJson["throttle"] = throttle_value*0.6;
+          msgJson["throttle"] = throttle_value;
 
           //Display the MPC predicted trajectory 
           vector<double> mpc_x_vals;
           vector<double> mpc_y_vals;
 
+				
+ 					cout << "mpc vec 2, 3 " << mpc_vec[2] <<  " " << mpc_vec[3] << endl;
+					cout << "mpc vec 4, 5 " << mpc_vec[4] <<  " " << mpc_vec[5] << endl;
+
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Green line
 
+//					for (int i=2; i<mpc_vec.size()-4; i+2){
+					mpc_x_vals.push_back(mpc_vec[2]);
+					mpc_x_vals.push_back(mpc_vec[4]);
+					mpc_x_vals.push_back(mpc_vec[6]);
+					mpc_x_vals.push_back(mpc_vec[8]);
+
+					mpc_y_vals.push_back(mpc_vec[3]);
+					mpc_y_vals.push_back(mpc_vec[5]);
+					mpc_y_vals.push_back(mpc_vec[7]);
+					mpc_y_vals.push_back(mpc_vec[9]);
+
+	
           msgJson["mpc_x"] = mpc_x_vals;
           msgJson["mpc_y"] = mpc_y_vals;
 
@@ -190,6 +206,7 @@ int main() {
 
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Yellow line
+
 
 
 					for (int i=0; i< ptsx.size(); i++){					

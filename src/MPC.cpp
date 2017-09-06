@@ -10,7 +10,7 @@
 using CppAD::AD;
 
 // TODO: Set the timestep length and duration
-size_t N = 20;
+size_t N = 12;
 double dt = 0.1;
 
 // This value assumes the model presented in the classroom is used.
@@ -25,7 +25,7 @@ double dt = 0.1;
 // This is the length from front to CoG that has a similar radius.
 const double Lf = 2.67;
 //ket
-double ref_v = 40;
+double ref_v = 30;
 //set the location of state vectors in fg
 size_t x_start = 0;
 size_t y_start = x_start + N;
@@ -56,20 +56,20 @@ class FG_eval {
     
     //now cost function Similar to the lectures
     for (int t = 0; t < N; t++) {
-      fg[0] += 100*CppAD::pow(vars[cte_start + t], 2);
-      fg[0] += 5*CppAD::pow(vars[epsi_start + t], 2);
+      fg[0] += 1500*CppAD::pow(vars[cte_start + t], 2);
+      fg[0] += 300*CppAD::pow(vars[epsi_start + t], 2);
       fg[0] += 2*CppAD::pow(vars[v_start + t] - ref_v, 2);
     }
     // minimize acutations
     // Minimize the use of actuators.
     for (int t = 0; t < N - 1; t++) {
-      fg[0] += 500*CppAD::pow(vars[delta_start + t], 2);
-      fg[0] += 20*CppAD::pow(vars[a_start + t], 2);
+      fg[0] += 100*CppAD::pow(vars[delta_start + t], 2);
+      fg[0] += 200*CppAD::pow(vars[a_start + t], 2);
     }
 		// Minimize the value gap between sequential actuations.
     for (int t = 0; t < N - 2; t++) {
-      fg[0] += CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
-      fg[0] += CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
+      fg[0] += 50000*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
+      fg[0] += 3000*CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
     }
 
     
@@ -260,9 +260,9 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   options += "Sparse  true        reverse\n";
   // NOTE: Currently the solver has a maximum time limit of 0.5 seconds.
   // Change this as you see fit.
-	//  options += "Numeric max_cpu_time          0.5\n";
+	options += "Numeric max_cpu_time          0.5\n";
 	//ket
-	options += "Numeric max_cpu_time          2.0\n";
+	//options += "Numeric max_cpu_time          2.0\n";
 	
   // place to return solution
   CppAD::ipopt::solve_result<Dvector> solution;
@@ -290,7 +290,7 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   controls.push_back(solution.x[delta_start]);
   controls.push_back(solution.x[a_start]);
 
-  for (int i = 0; i < N-1; i++) {
+  for (int i = 0; i < N-2; i++) {
     controls.push_back(solution.x[x_start + i + 1]);
     controls.push_back(solution.x[y_start + i + 1]);
   }
