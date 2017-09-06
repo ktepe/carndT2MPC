@@ -10,7 +10,7 @@
 using CppAD::AD;
 
 // TODO: Set the timestep length and duration
-size_t N = 12;
+size_t N = 20;
 double dt = 0.1;
 
 // This value assumes the model presented in the classroom is used.
@@ -210,8 +210,8 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
 	// Acceleration/decceleration upper and lower limits.
   // NOTE: Feel free to change this to something else.
   for (i = a_start; i < n_vars; i++) {
-    vars_lowerbound[i] = -1.0;
-    vars_upperbound[i] = 1.0;
+    vars_lowerbound[i] = -0.8;
+    vars_upperbound[i] = 0.8;
   }
 
 
@@ -287,8 +287,8 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   //ket
   vector<double> controls;
 
-  controls.push_back(solution.x[delta_start]);
-  controls.push_back(solution.x[a_start]);
+  controls.push_back(solution.x[delta_start+1]);
+  controls.push_back(solution.x[a_start+1]);
 
   for (int i = 0; i < N-2; i++) {
     controls.push_back(solution.x[x_start + i + 1]);

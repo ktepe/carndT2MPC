@@ -106,7 +106,6 @@ int main() {
           * Both are in between [-1, 1].
           *
           */
-          
 
 					// ket, get the waypoints in car coordinate system, vehice is at (0,0)
 					//vector<double> x_waypoints;
@@ -142,16 +141,18 @@ int main() {
 					Eigen::VectorXd state_vec(6);
 					//calculate what would the predicted state in 0.1 sec. to compensate the delay
 					double dtt=0.1;
-					double x_pre=v*dtt;
-					double y_pre=0;
+					//double x_pre=v*cos(psisteering_angle)*dtt;
+					//double y_pre=v*sin(steering_angle)*dtt;
+					double x_pre=v*cos(psi)*dtt;
+					double y_pre=v*sin(psi)*dtt;
 					double psi_pre= -v * steering_angle * dtt / 2.67;
 					double v_pre= v*throttle*dtt;
 					double cte_pre=cte+v*sin(epsi)*dtt;
 					double epsi_pre=epsi + psi_pre;
 					
 					
-					state_vec << x_pre, y_pre, psi_pre, v_pre, cte_pre, epsi_pre;
-
+//					state_vec << x_pre, y_pre, psi_pre, v_pre, cte_pre, epsi_pre;
+					state_vec << 0, 0, 0, v, cte, epsi;
 #if ket_debug
 					cout<< "before solver " << state_vec.size() << endl;
 #endif
@@ -190,11 +191,13 @@ int main() {
 					mpc_x_vals.push_back(mpc_vec[4]);
 					mpc_x_vals.push_back(mpc_vec[6]);
 					mpc_x_vals.push_back(mpc_vec[8]);
+					mpc_x_vals.push_back(mpc_vec[10]);
 
 					mpc_y_vals.push_back(mpc_vec[3]);
 					mpc_y_vals.push_back(mpc_vec[5]);
 					mpc_y_vals.push_back(mpc_vec[7]);
 					mpc_y_vals.push_back(mpc_vec[9]);
+					mpc_y_vals.push_back(mpc_vec[10]);
 
 	
           msgJson["mpc_x"] = mpc_x_vals;
