@@ -4,7 +4,7 @@
 #include "Eigen-3.3/Eigen/Core"
 
 //#ifndef ket_debug
-#define ket_debug true
+#define ket_debug false
 //#endif
 
 using CppAD::AD;

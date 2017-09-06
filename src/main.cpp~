@@ -9,7 +9,7 @@
 #include "MPC.h"
 #include "json.hpp"
 
-#define ket_debug true
+#define ket_debug false
 #define ket_debug_ false
 
 // for convenience
@@ -140,18 +140,6 @@ int main() {
 					//construt the state vector
 					Eigen::VectorXd state_vec(6);
 					//calculate what would the predicted state in 0.1 sec. to compensate the delay
-					double dtt=0.1;
-					//double x_pre=v*cos(psisteering_angle)*dtt;
-					//double y_pre=v*sin(steering_angle)*dtt;
-					double x_pre=v*cos(psi)*dtt;
-					double y_pre=v*sin(psi)*dtt;
-					double psi_pre= psi -v * steering_angle * dtt / 2.67;
-					double v_pre= v*throttle*dtt;
-					double cte_pre=cte+v*sin(epsi)*dtt;
-					double epsi_pre=epsi + psi_pre;
-					
-					
-//					state_vec << x_pre, y_pre, psi_pre, v_pre, cte_pre, epsi_pre;
 					state_vec << 0, 0, 0, v, cte, epsi;
 #if ket_debug
 					cout<< "before solver " << state_vec.size() << endl;
@@ -165,10 +153,7 @@ int main() {
 
 					double steer_value=mpc_vec[0];					
           double throttle_value=mpc_vec[1];
-          //Kp,Ki,Kd 0.08, 0.005, 0.5       	
-					//double steer_value=-0.08*cte-0.5*(cte-cte_t)-0.005*cte;
-					//steer_value=-0.008*cte;
-
+          
           json msgJson;
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
           // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
@@ -179,27 +164,16 @@ int main() {
           vector<double> mpc_x_vals;
           vector<double> mpc_y_vals;
 
-				
- 					cout << "mpc vec 2, 3 " << mpc_vec[2] <<  " " << mpc_vec[3] << endl;
-					cout << "mpc vec 4, 5 " << mpc_vec[4] <<  " " << mpc_vec[5] << endl;
 
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Green line
 
-//					for (int i=2; i<mpc_vec.size()-4; i+2){
-					mpc_x_vals.push_back(mpc_vec[2]);
-					mpc_x_vals.push_back(mpc_vec[4]);
-					mpc_x_vals.push_back(mpc_vec[6]);
-					mpc_x_vals.push_back(mpc_vec[8]);
-					mpc_x_vals.push_back(mpc_vec[10]);
 
-					mpc_y_vals.push_back(mpc_vec[3]);
-					mpc_y_vals.push_back(mpc_vec[5]);
-					mpc_y_vals.push_back(mpc_vec[7]);
-					mpc_y_vals.push_back(mpc_vec[9]);
-					mpc_y_vals.push_back(mpc_vec[10]);
+					for (int i=2; i<mpc_vec.size()-4; i+=2){
+						mpc_x_vals.push_back(mpc_vec[i]);
+						mpc_y_vals.push_back(mpc_vec[i+1]);
+					}
 
-	
           msgJson["mpc_x"] = mpc_x_vals;
           msgJson["mpc_y"] = mpc_y_vals;
 
