@@ -5,18 +5,18 @@ Self-Driving Car Engineer Nanodegree Program
 
 ## Kemal Tepe, ketepe@gmail.com
 
-##The Model
-*Student describes their model in detail. This includes the state, actuators and update equations.
+## The Model
+* The state, actuators and update equations.
 
-##Timestep Length and Elapsed Duration (N & dt)
-*he reasoning behind the chosen N (timestep length) and dt (elapsed duration between timesteps) values. Additionally the student details the previous values tried.
+## Timestep Length and Elapsed Duration (N & dt)
+* The reasoning behind the chosen N (timestep length) and dt (elapsed duration between timesteps) values. Additionally the student details the previous values tried.
 
 
-##Polynomial Fitting and MPC Preprocessing
-*A polynomial is fitted to waypoints.
+## Polynomial Fitting and MPC Preprocessing
+* A polynomial is fitted to waypoints.
 
-##Model Predictive Control with Latency
-*Model Predictive Control that handles a 100 millisecond latency. Student provides details on how they deal with latency.
+## Model Predictive Control with Latency
+* Model Predictive Control that handles a 100 millisecond latency. Student provides details on how they deal with latency.
 
 ---
 
