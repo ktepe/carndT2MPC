@@ -11,9 +11,9 @@ Self-Driving Car Engineer Nanodegree Program
 The kinematic model given below is implemented in the solver:
 
 ```math 
-x(t+1)=x(t) - v(t)cos(psi(t))d_t;
-y(t+1) = y(t) - v(t)sin(psi(t))d_t;
-phi(t+1) = psi(t) - (v(t) delta(t)/Lf d_t;
+x(t+1)=x(t) - v(t)cos(phi(t))d_t;
+y(t+1) = y(t) - v(t)sin(phi(t))d_t;
+phi(t+1) = phi(t) - (v(t) delta(t)/Lf d_t;
 v(t+1)=v(t)+a(t)d_t
 cte(t+1) = f(x(t))-y(t)+v(t)sin(ephi(t))d_t;
 ephi(t+1) = epsi(t)- epsi_{dest}(t)+v(t) delta(t)/Lf d_t ;
