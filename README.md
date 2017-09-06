@@ -18,18 +18,61 @@ v(t+1)=v(t)+a(t)d_t
 cte(t+1) = f(x(t))-y(t)+v(t)sin(ephi(t))d_t;
 ephi(t+1) = epsi(t)- epsi_{dest}(t)+v(t) delta(t)/Lf d_t ;
 ```
-where ``Lf`` is turning radius constant, ``d_t`` sampling time, ``a(t)`` acceleration (throttle), and ``delta(t)`` steering angle.  Variable ``a(t)`` and ``delta(t)`` are actuations. 
- 
+where ``Lf`` is turning radius constant, ``d_t`` sampling interval, ``a(t)`` acceleration (throttle), and ``delta(t)`` steering angle.  Variable ``a(t)`` and ``delta(t)`` are actuations. 
 
 ## Timestep Length and Elapsed Duration (N & dt)
 * The reasoning behind the chosen N (timestep length) and dt (elapsed duration between timesteps) values. Additionally the student details the previous values tried.
 
+Number of options for N and dt are tried. As suggested in the project manual, (Nxdt) is selected 1.5 to 2 seconds. For dt, I tried 0.05 and 0.1 seconds. Selecting dt as 0.05 requires at least an N of 30-40 timesteps and increases the computational complexity of solver. Finer dt resolution can increase the control accuracy but extra computations need to be avoided as well. That is why in the final implementation dt is selected as 0.1. This also alligns well with the latency in applying the control.  After setting dt to 0.1 sec, number of different values for N is tried. N varied from 10 to 20. Although there were not a significant performance difference among the number between 10-20, in the final implementation I left N as 20 in order to provide longer control horizon, selecting N 20 seemed to handle sharp curves better.  
 
 ## Polynomial Fitting and MPC Preprocessing
 * A polynomial is fitted to waypoints.
 
+The solver optimizes acceleration values and steering angle for given cost function. The solver first fits ``x(t)`` and ``y(t)`` values to the 3rd order polynomial which fits to given waypoints. The cost function is implemented in the solver is given below:
+
+```C++
+  //now cost function Similar to the lectures
+    for (int t = 0; t < N; t++) {
+      fg[0] += 1500*CppAD::pow(vars[cte_start + t], 2);
+      fg[0] += 350*CppAD::pow(vars[epsi_start + t], 2);
+      fg[0] += 2*CppAD::pow(vars[v_start + t] - ref_v, 2);
+    }
+    // minimize acutations
+    // Minimize the use of actuators.
+    for (int t = 0; t < N - 1; t++) {
+      fg[0] += 100*CppAD::pow(vars[delta_start + t], 2);
+      fg[0] += 200*CppAD::pow(vars[a_start + t], 2);
+    }
+		// Minimize the value gap between sequential actuations.
+    for (int t = 0; t < N - 2; t++) {
+      fg[0] += 50000*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
+      fg[0] += 3000*CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
+    }
+```
+
+The weights of the cost function parameters are manually optimized for reference speeds of 30 mph or less. The simulator is tested with same weights upto reference speed 50 mph, but for 40-50 mph the cost function needs more adjustment to handle sharp turns.
+
 ## Model Predictive Control with Latency
 * Model Predictive Control that handles a 100 millisecond latency. Student provides details on how they deal with latency.
+
+Since there is a roughly 0.1 sec delay between applying actuation values and the vehicle position, I tried two approached. The first one, I estimated vehicle's state vector at 0.1 sec later, and pass this to the solver. This method partially worked but could not handle controling the vehicle at sharp turns. That is why I consider it partially worked.
+
+The second one, I pass a very basic state variable with 
+```C++
+state_vec << 0, 0, 0, v, cte, epsi;
+```
+
+Then I used ``delta(t+0.1)`` and ``a(t+0.1)`` actuation values from the optimizer. This provided a small error at the start, but provided much smoother and stable controling for the vehicle. This was the method in the provided code.
+
+```C
+controls.push_back(solution.x[delta_start+1]);
+controls.push_back(solution.x[a_start+1]);
+```
+
+##Conclusions:
+
+* The controller works upto speeds 30 mph without any problem. With some more time and cost weight adjustments, the controller can handle higher speeds.
+
 
 ---
 
