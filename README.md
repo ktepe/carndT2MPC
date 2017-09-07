@@ -23,7 +23,11 @@ where ``Lf`` is turning radius constant, ``d_t`` sampling interval, ``a(t)`` acc
 ## Timestep Length and Elapsed Duration (N & dt)
 * The reasoning behind the chosen N (timestep length) and dt (elapsed duration between timesteps) values. Additionally the student details the previous values tried.
 
-Number of options for N and dt are tried. As suggested in the project manual, (Nxdt) is selected 1.5 to 2 seconds. For dt, I tried 0.05 and 0.1 seconds. Selecting dt as 0.05 requires at least an N of 30-40 timesteps and increases the computational complexity of solver. Finer dt resolution can increase the control accuracy but extra computations need to be avoided as well. That is why in the final implementation dt is selected as 0.1. This also alligns well with the latency in applying the control.  After setting dt to 0.1 sec, number of different values for N is tried. N varied from 10 to 20. Although there were not a significant performance difference among the number between 10-20, in the final implementation I left N as 20 in order to provide longer control horizon, selecting N 20 seemed to handle sharp curves better.  
+Number of options for N and dt are tried. As suggested in the project manual, (Nxdt) is selected 1.5 to 2 seconds. For dt, I tried 0.05 and 0.1 seconds. Selecting dt as 0.05 requires at least an N of 30-40 timesteps and increases the computational complexity of solver. Finer dt resolution can increase the control accuracy but extra computations need to be avoided as well. That is why in the final implementation dt is selected as 0.1. This also alligns well with the latency in applying the control.  After setting dt to 0.1 sec, number of different values for N is tried. N varied from 10 to 20. Although there were not a significant performance difference among the number between 10-20, in the final implementation I left N as 20 in order to provide longer control horizon, selecting N 20 seemed to handle sharp curves better. 
+
+* Update (after review)
+I reduced to N=12 and the vehicle had a better handling since the predictions were fitting to the waypoints better.
+
 
 ## Polynomial Fitting and MPC Preprocessing
 * A polynomial is fitted to waypoints.
@@ -33,31 +37,37 @@ The solver optimizes acceleration values and steering angle for given cost funct
 ```C++
   //now cost function Similar to the lectures
     for (int t = 0; t < N; t++) {
-      fg[0] += 2000*CppAD::pow(vars[cte_start + t], 2);
-      fg[0] += 350*CppAD::pow(vars[epsi_start + t], 2);
-      fg[0] += 2*CppAD::pow(vars[v_start + t] - ref_v, 2);
+      fg[0] += 20*CppAD::pow(vars[cte_start + t], 2);
+      fg[0] += 3.5*CppAD::pow(vars[epsi_start + t], 2);
+      fg[0] += 0.2*CppAD::pow(vars[v_start + t] - ref_v, 2);
     }
     // minimize acutations
     // Minimize the use of actuators.
     for (int t = 0; t < N - 1; t++) {
-      fg[0] += 100*CppAD::pow(vars[delta_start + t], 2);
-      fg[0] += 200*CppAD::pow(vars[a_start + t], 2);
+      fg[0] += CppAD::pow(vars[delta_start + t], 2);
+      fg[0] += 2*CppAD::pow(vars[a_start + t], 2);
     }
 		// Minimize the value gap between sequential actuations.
     for (int t = 0; t < N - 2; t++) {
-      fg[0] += 50000*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
-      fg[0] += 3000*CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
+      fg[0] += 700*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
+      fg[0] += 30*CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
       // slow down the vehicle when the steering is large 			
-      fg[0] += 100000*CppAD::pow(vars[a_start + t]* vars[delta_start+t], 2);	
+      fg[0] += 1000*CppAD::pow(vars[a_start + t]* vars[delta_start+t], 2);	
       
     }
 ```
 
-The weights of the cost function parameters are manually optimized for reference speeds of 50 mph or less. I also put a cost on acceleration and large steering. This allowed to car to slow down at sharp turns and stabilized the car. With that, the car can reach top speed of 30 mph. 
+* Update (after review)
+
+The weights of the cost function parameters are manually optimized for reference speed of 50 mph or less. I also put a cost on acceleration and large steering. This allowed to car to slow down at sharp turns and stabilized the car. With that, the car can reach top speed of 35 mph on the track. 
+
+
 
 
 ## Model Predictive Control with Latency
 * Model Predictive Control that handles a 100 millisecond latency. Student provides details on how they deal with latency.
+
+* Update (after review)
 
 Since there is a roughly 0.1 sec delay between applying actuation values and the vehicle position, I used the approach of providing the estimated vehicle's state vector at 0.1 sec to the solver. 
 ```C++
