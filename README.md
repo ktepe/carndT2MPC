@@ -33,7 +33,7 @@ The solver optimizes acceleration values and steering angle for given cost funct
 ```C++
   //now cost function Similar to the lectures
     for (int t = 0; t < N; t++) {
-      fg[0] += 1500*CppAD::pow(vars[cte_start + t], 2);
+      fg[0] += 2000*CppAD::pow(vars[cte_start + t], 2);
       fg[0] += 350*CppAD::pow(vars[epsi_start + t], 2);
       fg[0] += 2*CppAD::pow(vars[v_start + t] - ref_v, 2);
     }
@@ -47,27 +47,34 @@ The solver optimizes acceleration values and steering angle for given cost funct
     for (int t = 0; t < N - 2; t++) {
       fg[0] += 50000*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
       fg[0] += 3000*CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
+      // slow down the vehicle when the steering is large 			
+      fg[0] += 100000*CppAD::pow(vars[a_start + t]* vars[delta_start+t], 2);	
+      
     }
 ```
 
-The weights of the cost function parameters are manually optimized for reference speeds of 30 mph or less. The simulator is tested with same weights upto reference speed 50 mph, but for 40-50 mph the cost function needs more adjustment to handle sharp turns.
+The weights of the cost function parameters are manually optimized for reference speeds of 50 mph or less. I also put a cost on acceleration and large steering. This allowed to car to slow down at sharp turns and stabilized the car. With that, the car can reach top speed of 30 mph. 
+
 
 ## Model Predictive Control with Latency
 * Model Predictive Control that handles a 100 millisecond latency. Student provides details on how they deal with latency.
 
-Since there is a roughly 0.1 sec delay between applying actuation values and the vehicle position, I tried two approached. The first one, I estimated vehicle's state vector at 0.1 sec later, and pass this to the solver. This method partially worked but could not handle controling the vehicle at sharp turns. That is why I consider it partially worked.
-
-The second one, I pass a very basic state variable with 
+Since there is a roughly 0.1 sec delay between applying actuation values and the vehicle position, I used the approach of providing the estimated vehicle's state vector at 0.1 sec to the solver. 
 ```C++
-state_vec << 0, 0, 0, v, cte, epsi;
+//calculate what would the predicted state in 0.1 sec. to compensate the delay
+	double dt=0.1;
+	double x_pre=v*dt;
+	double y_pre=0;
+	double psi_pre= v * -(steering_angle / 2.67) * dt;
+	double v_pre=v+v*throttle*dt;
+	double cte_pre = cte + v * sin(epsi) * dt;
+	double epsi_pre= epsi + v * -(steering_angle / 2.67) * dt;	
+						
+//	state_vec << 0, 0, 0, v, cte, epsi;
+	state_vec << x_pre, y_pre, psi_pre, v_pre, cte_pre, epsi_pre; 
 ```
 
-Then I used ``delta(t+0.1)`` and ``a(t+0.1)`` actuation values from the optimizer. This provided a small error at the start, but provided much smoother and stable controling for the vehicle. This was the method in the provided code.
 
-```C
-controls.push_back(solution.x[delta_start+1]);
-controls.push_back(solution.x[a_start+1]);
-```
 
 ## Conclusions:
 
