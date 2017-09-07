@@ -88,7 +88,7 @@ Since there is a roughly 0.1 sec delay between applying actuation values and the
 
 ## Conclusions:
 
-* The controller works upto speeds 30 mph without any problem. With some more time and cost weight adjustments, the controller can handle higher speeds.
+* The controller works upto speeds 35-40 mph on the track without any problem. With some more time and cost weight adjustments, the controller can handle higher speeds.
 
 * Model predictive control lecture and codes provided there were very useful. I also heavily used Forum discussions to implement and finetune the controller.
 
