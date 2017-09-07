@@ -25,7 +25,7 @@ double dt = 0.1;
 // This is the length from front to CoG that has a similar radius.
 const double Lf = 2.67;
 //ket
-double ref_v = 50;
+double ref_v = 40;
 //set the location of state vectors in fg
 size_t x_start = 0;
 size_t y_start = x_start + N;
@@ -56,7 +56,7 @@ class FG_eval {
     
     //now cost function Similar to the lectures
     for (int t = 0; t < N; t++) {
-      fg[0] += 1500*CppAD::pow(vars[cte_start + t], 2);
+      fg[0] += 2000*CppAD::pow(vars[cte_start + t], 2);
       fg[0] += 350*CppAD::pow(vars[epsi_start + t], 2);
       fg[0] += 2*CppAD::pow(vars[v_start + t] - ref_v, 2);
     }
@@ -72,7 +72,7 @@ class FG_eval {
       fg[0] += 3000*CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
  			//
 			// slow down the vehicle when the steering is large 			
-	 		fg[0] += 20000*CppAD::pow(vars[a_start + t]* vars[delta_start+t], 2);	
+	 		fg[0] += 100000*CppAD::pow(vars[a_start + t]* vars[delta_start+t], 2);	
     }
 
     
