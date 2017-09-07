@@ -141,7 +141,17 @@ int main() {
 					//construt the state vector
 					Eigen::VectorXd state_vec(6);
 					//calculate what would the predicted state in 0.1 sec. to compensate the delay
-					state_vec << 0, 0, 0, v, cte, epsi;
+					double dt=0.1;
+					double x_pre=v*dt;
+					double y_pre=0;
+					double psi_pre= v * -(steering_angle / 2.67) * dt;
+					double v_pre=v+v*throttle*dt;
+					double cte_pre = cte + v * sin(epsi) * dt;
+					double epsi_pre= epsi + v * -(steering_angle / 2.67) * dt;	
+						
+//					state_vec << 0, 0, 0, v, cte, epsi;
+					state_vec << x_pre, y_pre, psi_pre, v_pre, cte_pre, epsi_pre; 
+
 #if ket_debug
 					cout<< "before solver " << state_vec.size() << endl;
 #endif

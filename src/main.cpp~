@@ -9,6 +9,7 @@
 #include "MPC.h"
 #include "json.hpp"
 
+//switch debugging switch
 #define ket_debug false
 #define ket_debug_ false
 
@@ -140,6 +141,13 @@ int main() {
 					//construt the state vector
 					Eigen::VectorXd state_vec(6);
 					//calculate what would the predicted state in 0.1 sec. to compensate the delay
+					double dt=0.1;
+					double x_pre=v*dt;
+					double y_pre=0;
+					double psi_pre= v * -(steering_angle / Lf) * dt;
+					double v=v+v*throttle*dt;
+					
+					
 					state_vec << 0, 0, 0, v, cte, epsi;
 #if ket_debug
 					cout<< "before solver " << state_vec.size() << endl;

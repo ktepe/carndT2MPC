@@ -25,7 +25,7 @@ double dt = 0.1;
 // This is the length from front to CoG that has a similar radius.
 const double Lf = 2.67;
 //ket
-double ref_v = 30;
+double ref_v = 50;
 //set the location of state vectors in fg
 size_t x_start = 0;
 size_t y_start = x_start + N;
@@ -70,6 +70,9 @@ class FG_eval {
     for (int t = 0; t < N - 2; t++) {
       fg[0] += 50000*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
       fg[0] += 3000*CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
+ 			//
+			// slow down the vehicle when the steering is large 			
+	 		fg[0] += 20000*CppAD::pow(vars[a_start + t]* vars[delta_start+t], 2);	
     }
 
     
@@ -287,8 +290,8 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   //ket
   vector<double> controls;
 
-  controls.push_back(solution.x[delta_start+1]);
-  controls.push_back(solution.x[a_start+1]);
+  controls.push_back(solution.x[delta_start]);
+  controls.push_back(solution.x[a_start]);
 
   for (int i = 0; i < N-2; i++) {
     controls.push_back(solution.x[x_start + i + 1]);
