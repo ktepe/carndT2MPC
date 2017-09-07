@@ -68,7 +68,7 @@ class FG_eval {
     }
 		// Minimize the value gap between sequential actuations.
     for (int t = 0; t < N - 2; t++) {
-      fg[0] += 500*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
+      fg[0] += 700*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
       fg[0] += 30*CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
  			//
 			// slow down the vehicle when the steering is large 			
